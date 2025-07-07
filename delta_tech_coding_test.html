@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delta Tech Coding Challenge</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f3f3f3;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin: 15px 0 5px;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    #editor {
+      height: 300px;
+      border: 1px solid #ccc;
+      margin-bottom: 15px;
+    }
+    button {
+      background-color: #007BFF;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Delta Tech Coding Challenge</h1>
+    <label for="name">Enter Your Name:</label>
+    <input type="text" id="name" placeholder="Your full name" required>
+
+    <label for="language">Select Language:</label>
+    <select id="language">
+      <option value="c_cpp">C/C++</option>
+      <option value="java">Java</option>
+    </select>
+
+    <label for="editor">Write Your Code:</label>
+    <div id="editor">// Write your code here...</div>
+
+    <button onclick="submitCode()">Submit Code</button>
+  </div>
+
+  <script>
+    const editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    editor.session.setMode("ace/mode/c_cpp");
+
+    document.getElementById("language").addEventListener("change", function () {
+      const lang = this.value;
+      editor.session.setMode("ace/mode/" + lang);
+    });
+
+    function submitCode() {
+      const name = document.getElementById("name").value;
+      const language = document.getElementById("language").value;
+      const code = editor.getValue();
+
+      if (!name || !code) {
+        alert("Please enter your name and code before submitting.");
+        return;
+      }
+
+      const submission = {
+        name: name,
+        language: language,
+        code: code,
+        timestamp: new Date().toISOString()
+      };
+
+      console.log("Submission: ", submission);
+      alert("Code submitted successfully! Check console for details. In real deployment, this will be saved to Firebase or a database.");
+    }
+  </script>
+</body>
+</html>
