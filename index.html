@@ -6,55 +6,86 @@
   <title>Delta Tech Coding Challenge</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #e0eafc, #cfdef3);
+    }
+    .header {
+      background-color: #003366;
+      color: white;
       padding: 20px;
-      background-color: #f3f3f3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header img {
+      height: 60px;
+    }
+    .header h1 {
+      font-size: 1.8rem;
+      margin: 0;
+      padding-left: 10px;
     }
     .container {
       max-width: 800px;
-      margin: auto;
+      margin: 30px auto;
       background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    h1 {
-      text-align: center;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
     label {
       display: block;
       margin: 15px 0 5px;
+      font-weight: bold;
     }
     input, select {
       width: 100%;
-      padding: 8px;
-      margin-bottom: 10px;
-      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 6px;
       border: 1px solid #ccc;
     }
     #editor {
       height: 300px;
       border: 1px solid #ccc;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
+      border-radius: 6px;
+    }
+    #timer {
+      font-size: 18px;
+      color: #ff0000;
+      font-weight: bold;
+      margin-bottom: 20px;
     }
     button {
-      background-color: #007BFF;
+      background-color: #28a745;
       color: white;
-      padding: 10px 20px;
+      padding: 12px 25px;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
+      font-size: 16px;
       cursor: pointer;
+      transition: background-color 0.3s;
     }
     button:hover {
-      background-color: #0056b3;
+      background-color: #218838;
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <div class="container">
+  <div class="header">
+    <img src="https://i.ibb.co/fX2RcZJ/delta-tech-logo.png" alt="Delta Tech Logo">
     <h1>Delta Tech Coding Challenge</h1>
+  </div>
+
+  <div class="container">
+    <div id="timer">Time Left: 15:00</div>
+
     <label for="name">Enter Your Name:</label>
     <input type="text" id="name" placeholder="Your full name" required>
 
@@ -62,12 +93,6 @@
     <select id="language">
       <option value="c_cpp">C/C++</option>
       <option value="java">Java</option>
-      <option value="python">Python</option>
-      <option value="php">Php</option>
-     
-
-
-
     </select>
 
     <label for="editor">Write Your Code:</label>
@@ -77,6 +102,18 @@
   </div>
 
   <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBtiP7BNJW7nPssJZ3QxMXhKfkaNck6wns",
+      authDomain: "deltatechcodingtest.firebaseapp.com",
+      projectId: "deltatechcodingtest",
+      storageBucket: "deltatechcodingtest.firebasestorage.app",
+      messagingSenderId: "454106942574",
+      appId: "1:454106942574:web:6eb172187b2302009e6a7f"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
     const editor = ace.edit("editor");
     editor.setTheme("ace/theme/monokai");
     editor.session.setMode("ace/mode/c_cpp");
@@ -97,15 +134,40 @@
       }
 
       const submission = {
-        name: name,
-        language: language,
-        code: code,
+        name,
+        language,
+        code,
         timestamp: new Date().toISOString()
       };
 
-      console.log("Submission: ", submission);
-      alert("Code submitted successfully! Check console for details. In real deployment, this will be saved to Firebase or a database.");
+      db.collection("submissions").add(submission)
+        .then(() => {
+          alert("Code submitted and saved to Firebase successfully!");
+        })
+        .catch((error) => {
+          console.error("Error saving to Firebase: ", error);
+          alert("Submission failed. Check console for details.");
+        });
     }
+
+    // Countdown Timer - 15 minutes
+    let totalSeconds = 15 * 60;
+    const timerElement = document.getElementById("timer");
+
+    function updateTimer() {
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      timerElement.textContent = `Time Left: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      totalSeconds--;
+      if (totalSeconds < 0) {
+        clearInterval(timerInterval);
+        alert("Time's up! Your test will be auto-submitted.");
+        submitCode();
+      }
+    }
+
+    const timerInterval = setInterval(updateTimer, 1000);
+    updateTimer();
   </script>
 </body>
 </html>
